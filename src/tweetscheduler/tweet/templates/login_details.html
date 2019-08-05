@@ -1,0 +1,14 @@
+{% extends 'homepage.html' %}
+
+
+{% block content %}
+<div style="margin: 15px">
+    <h2>User - {{ person.name }}</h2>
+    <p><span style="background-color: gainsboro"><i>CONSUMER KEY -</i></span> {{ person.consumer_key }}</p>
+    <p><span style="background-color: gainsboro"><i>CONSUMER SECRET KEY -</i></span> {{ person.consumer_secret_key }}</p>
+    <p><span style="background-color: gainsboro"><i>ACCESS TOKEN -</i></span> {{ person.access_token }}</p>
+    <p><span style="background-color: gainsboro"><i>ACCESS SECRET TOKEN -</i></span> {{ person.access_secret_token }}</p>
+    <p><b><a href="{% url 'user_delete' pk=person.pk %}">DELETE USER</a></b></p>
+
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'homepage.html' %}
+
+
+{% block content %}
+
+<div>
+    {% for name in n %}
+
+    <h2>DIRECT MESSAGE - {{ n }}</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{dm_form.as_p}}
+            <button type = "submit" >SUBMIT</button>
+        </form>
+    {% endfor %}
+</div>
+
+{% endblock %}

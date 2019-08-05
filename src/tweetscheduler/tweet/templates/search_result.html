@@ -1,0 +1,194 @@
+{% extends 'homepage.html' %}
+
+{% block script %}
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        var dict = [];
+        var idText = [];
+        var obj = {};
+        $('.userChecked').click(function(){
+            obj={
+                    userId: $(this).data('userid'),
+                    userName: $(this).data('uname')
+                };
+
+            if($(this).is(":checked"))
+            {
+                dict.push(obj);
+            }
+            else
+            {
+            var index = dict.findIndex(function(element){
+                       return element.userId===obj.userId;
+                });
+                if (index > -1)
+                    {
+                        dict.splice(index, 1);
+                    }
+            }
+            console.log(dict)
+        });
+
+            DmLoop = function()
+            {
+                if(dict.length>0)
+                {
+                    var list = "<ul>";
+                    for(var i=0; i<dict.length; i++)
+                    {
+                        list += "<li><label>"+(i+1)+"</label>.<label>"+dict[i].userName+"</label><br><input type='text' class='dm-text' data-message='"+dict[i].userId+"'><input type='file' data-upload='"+dict[i].userId+"' class='dm-upload'></li><br>";
+
+                    }
+                        list += "</ul>";
+                    //list += "<button class='btn btn-info' >Direct Message</button>";
+
+                    console.log(list);
+                    $("#exampleModal").modal("show");
+                    $('#dmPopup').html(list);
+
+                }
+                else
+                {
+                    alert("NO USER SELECTED")
+                }
+
+            };
+
+            postData = function()
+            {
+
+                $('.dm-text').each(function(){
+                    var text=$(this).val();
+                    var textId=$(this).data('message');
+                    if(text!="")
+                    {
+                        idText.push({
+                            dmId: textId,
+                            dmText: text
+                        })
+                        console.log(idText);
+                    }
+
+                });
+                if(idText.length>0)
+                {
+                console.log(idText)
+                   $.ajax({
+                        type: 'POST',
+                        url: '/dm_Api/',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        data:JSON.stringify(idText),
+                        success: function(){ alert("done"); },
+                        error: function(error){ alert(error) },
+                   });
+                }
+                else
+                {
+                    alert("error")
+                }
+            }
+
+             $("#userSubmit").click(function(){
+                DmLoop();
+
+             });
+             $('#postDm').click(function(){
+                postData();
+             });
+             /*$('#testDm').click(function(){
+                location.href = "/test_dm/";
+             });*/
+    });
+</script>
+
+<!--<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $("a").click(function(){
+
+            var users = [];
+
+            $.each($("input[name='user']:checked"), function(){
+
+                users.push($(this).val());
+
+            });
+
+             $.ajax({
+                    type: 'POST',
+                    url: '/dm_users/',
+                    data: {'users_list[]': users},
+             });
+
+
+
+
+        });
+
+    });
+
+</script>-->
+
+{% endblock %}
+
+{% block content %}
+
+
+<div>
+    <h2 style="margin: 10px">SEARCH RESULTS</h2>
+        <div>
+            {% for results in result %}
+            <ul style="margin-bottom: 20px" id="#cb">
+                <li><p><strong>Tweet text: </strong> {{ results.full_text }}</p></li>
+                <li><p><strong>Hashtags used: </strong> {{ results.hashtags }}</p></li>
+                <li><p><strong>Urls used: </strong> {{ results.urls }}</p></li>
+                <li><p><strong>Retweets: </strong>{{ results.retweet_count }}</p></li>
+                <li><p><strong>Favorite count: </strong>{{ results.favorite_count }}</p></li>
+                <li><p><strong>Tweet made on: </strong> {{ results.created_at }}</p></li>
+                <li><p><strong>User name: </strong>{{ results.user.name }}</p></li>
+                <!--<li><p><a href="/dm_user/{{ results.id }}"><strong>User id: </strong>{{ results.id }}</a></p></li>-->
+                <li id="userId"><p><strong>User Id: </strong>{{ results.id }}</p></li>
+                <li><b>SELECT: <input data-userid="{{ results.id }}"
+                                      data-uname="{{ results.user.name }}"
+                                      type="checkbox" class="userChecked" name="user"
+                                      value="{{ results.id }}"></b></li>
+            </ul>
+            {% endfor %}
+        </div>
+        <div style="margin: 0px 30px 75px 30px;">
+
+            <button type="button" id="userSubmit" class='btn btn-info' >Submit</button>
+<!--        <b><button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">DIRECT MESSAGE</button></b>-->
+        </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Direct Message</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="dmPopup">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="postDm" class="btn btn-primary">SEND</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+<!--var a="<ul>";-->
+<!--                for(var i=0; i<dict.length; i++){-->
+<!--                    a += "<li><label>"+(i+1)+"</label>.<label>"+dict[i].userName+"</label> <input class='dmtxtbox' type='text' data-userid='"+dict[i].userId+"'  id='txt-"+i+"' /></li>";-->
+<!--                    }-->
+<!--                    a += "<li><button id='dmmessage' class='btn btn-info'>Send Messages</button> </li>";-->
+<!--                     a+="</ul>";-->
+<!--              console.log(a);-->
+<!--              $('#dmlist').html(a);-->

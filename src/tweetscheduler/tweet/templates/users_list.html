@@ -1,0 +1,12 @@
+{% extends 'homepage.html' %}
+
+{% block content %}
+<div style="margin: 15px">
+        <h2>USERS</h2>
+        <div>
+                {% for users in user %}
+                        <h3><a href="{% url 'login_detail' pk=users.pk %}">{{ users.name }}</a></h3><br>
+                {% endfor %}
+        </div>
+</div>
+{% endblock %}

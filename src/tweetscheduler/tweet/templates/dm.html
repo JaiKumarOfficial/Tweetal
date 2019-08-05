@@ -1,0 +1,16 @@
+{% extends 'homepage.html' %}
+
+
+{% block content %}
+<div>
+        <h2>DIRECT MESSAGE</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{dm_form.as_p}}
+            <button type = "submit" >SUBMIT</button>
+        </form>
+</div>
+<div>
+
+</div>
+{% endblock %}

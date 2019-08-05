@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tweet Scheduler</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <style>
+        .dm-upload {
+        display: inline!important;
+        margin-left: 10px;
+            }
+    </style>
+
+    {% block script %}
+
+    {% endblock %}
+    <style>
+        nav
+        {
+            display: inline-block;
+            width: 100%;
+        }
+        nav ul
+        {
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li
+        {
+            float: left;
+            padding: 5px 10px;
+            list-style: none;
+            font-size: 20px;
+            color: #0ca836
+        }
+        a:hover
+        {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div>
+<h1 style="text-align: center"><a href="/" style="text-decoration: none">TWEET SCHEDULER</a></h1>
+    <nav>
+        <ul style="float: right">
+            <li><a href="/login/"><b>Login</b></a></li>
+            <li><a href="/new_tweet/"><b>Tweet</b></a></li>
+            <li><a href="/users/"><b>Users</b></a></li>
+            <li><a href="/search/"><b>Search</b></a></li>
+        </ul>
+    </nav>
+</div>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,12 @@
+{% extends 'homepage.html' %}
+
+{% block content %}
+<div style="margin: 20px">
+    <h2>LOGIN</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{user_login_input.as_p}}
+            <button class='btn btn-primary' type = "submit">LOGIN</button>
+        </form>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'homepage.html' %}
+
+
+{% block content %}
+<div style="margin: 15px">
+        <h2>NEW TWEET</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{post_tweet.as_p}}
+            <button class="btn btn-primary" type = "submit" >TWEET</button>
+        </form>
+</div>
+{% endblock %}
