@@ -37,13 +37,24 @@
                     var list = "<ul>";
                     for(var i=0; i<dict.length; i++)
                     {
-                        list += "<li><label>"+(i+1)+"</label>.<label>"+dict[i].userName+"</label><br><input type='text' class='dm-text' data-message='"+dict[i].userId+"'><input type='file' data-upload='"+dict[i].userId+"' class='dm-upload'></li><br>";
+                        list += "<li><label>"+(i+1)+"</label>.<label>"+dict[i].userName+"</label><br>\
+                        <input type='text' id='dmText' class='dm-text' data-message='"+dict[i].userId+"'>\
+                        <input type='file' data-upload='"+dict[i].userId+"' class='dm-upload'>\
+                        <br>Save Template: <input name='saveTemp' id='check' onclick='checkbox()' type='checkbox'>\
+                        <input type='hidden' name='isChecked' value='false' id='aaa'>\
+                        <br>Template Name: <input type='text' name='temp_name' maxlength='50' id='id_temp_name'>\
+                        <br><select onchange='selected()' id='dropdown' style='height: 20px; width: 97px;'>\
+                        <option value=''>Select Template</option>\
+                        {% for elem in stored_form %}\
+                        <option value='{{ elem.text }}'>{{ elem.temp_name }}</option>\
+                        {% endfor %}\
+                        </select><br>\
+                        </li><br>";
 
                     }
                         list += "</ul>";
                     //list += "<button class='btn btn-info' >Direct Message</button>";
-
-                    console.log(list);
+                    //console.log(list);
                     $("#exampleModal").modal("show");
                     $('#dmPopup').html(list);
 
@@ -95,13 +106,26 @@
                 DmLoop();
 
              });
+
              $('#postDm').click(function(){
                 postData();
              });
+
              /*$('#testDm').click(function(){
                 location.href = "/test_dm/";
              });*/
     });
+    function checkbox() {
+        var check = document.getElementById('check').checked;
+        document.getElementById('aaa').value = check;
+    }
+
+    function selected(){
+        var e = document.getElementById('dropdown');
+        var tempName = e.options[e.selectedIndex].value;
+        console.log(tempName)
+        document.getElementById('dmText').value=tempName
+    }
 </script>
 
 <!--<script type="text/javascript">
@@ -115,20 +139,13 @@
             $.each($("input[name='user']:checked"), function(){
 
                 users.push($(this).val());
-
             });
-
              $.ajax({
                     type: 'POST',
                     url: '/dm_users/',
                     data: {'users_list[]': users},
              });
-
-
-
-
         });
-
     });
 
 </script>-->

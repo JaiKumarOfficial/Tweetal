@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Users, DmUserList, Tweet
-from .forms import UserLoginForm, PostTweet, Search, DmForm, DmUserListForm
+from .models import Users, Template, DmUserList, Tweet
+from .forms import UserLoginForm, PostTweet, Search, DmForm, TemplateForm, DmUserListForm
 from django.http import HttpResponse, HttpResponseRedirect
 import twitter, datetime, json, tweepy
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework.parsers import JSONParser
 from rest_framework import viewsets
 from .serializers import DmUserListSerializer
@@ -115,6 +116,11 @@ def tweet_search_form(request):
         return redirect('no_user_found')
 
 
+def fetch_temp():
+    t = Template.objects.all()
+    return t
+
+
 def search_results(request):
     current_date = datetime.datetime.now()
     now = current_date.strftime("%Y-%m-%d")
@@ -137,11 +143,15 @@ def search_results(request):
             print(text)
             if since <= now and since <= until:
                 user = fetch_user()
-
-                result = user.GetSearch(term=search_text, since=since, until=until, count=count,
-                                        result_type=result_type, lang='en', )
-
-                return render(request, 'search_result.html', {'result': result})
+                form = TemplateForm()
+                stored_temp = fetch_temp()
+                data = {
+                    'result': user.GetSearch(term=search_text, since=since, until=until, count=count,
+                                        result_type=result_type, lang='en', ),
+                    'form': form,
+                    'stored_form': stored_temp
+                }
+                return render(request, 'search_result.html', data)
             else:
                 return render(request, 'search_error.html', {})
         else:

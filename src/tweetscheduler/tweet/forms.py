@@ -1,5 +1,6 @@
 from django import forms
 from .models import Users, Tweet, DmUserList
+from .models import Template
 from django.utils import timezone
 
 
@@ -42,7 +43,10 @@ class DmUserListForm(forms.ModelForm):
         fields = '__all__'
 
 
-
+class TemplateForm(forms.ModelForm):
+    class Meta:
+        model = Template
+        fields = ('text', 'temp_name')
 
 # class TemplateResponse(forms.ModelForm):
 #     class Meta:

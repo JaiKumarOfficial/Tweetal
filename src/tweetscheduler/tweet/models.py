@@ -31,5 +31,11 @@ class DmUserList(models.Model):
     user_name = models.CharField(max_length=20)
 
 
+class Template(models.Model):
+
+    temp_name = models.CharField(max_length=50, blank=True, null=True)
+    text = models.TextField()
+
+
 # class TemplateText(models.Model):
 #     text = models.TextField()
