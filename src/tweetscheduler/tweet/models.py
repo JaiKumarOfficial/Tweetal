@@ -36,6 +36,9 @@ class Template(models.Model):
     temp_name = models.CharField(max_length=50, blank=True, null=True)
     text = models.TextField()
 
+    def __str__(self):
+        return self.temp_name
+
 
 # class TemplateText(models.Model):
 #     text = models.TextField()

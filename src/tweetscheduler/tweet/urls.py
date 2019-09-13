@@ -23,6 +23,8 @@ urlpatterns = [
     path('dm_user/<int:user_id>', views.dm),
     path('dm_users/', views.dm_list),
     path('dm_Api/', views.dmAPI),
+    path('save-template/', views.save_template),
+    path('send-dm/', views.send_dm),
     #path('test_dm/', views.test_dm)
     #path('dm_user_list/', views.postDmUserList, name='postDmUserList'),
     # path('api_test/', include(router.urls)),

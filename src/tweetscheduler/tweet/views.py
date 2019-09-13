@@ -4,6 +4,7 @@ from .forms import UserLoginForm, PostTweet, Search, DmForm, TemplateForm, DmUse
 from django.http import HttpResponse, HttpResponseRedirect
 import twitter, datetime, json, tweepy
 from django.http import JsonResponse
+from django.forms import formset_factory
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.parsers import JSONParser
@@ -143,7 +144,8 @@ def search_results(request):
             print(text)
             if since <= now and since <= until:
                 user = fetch_user()
-                form = TemplateForm()
+                forms = TemplateForm
+                form = forms()
                 stored_temp = fetch_temp()
                 data = {
                     'result': user.GetSearch(term=search_text, since=since, until=until, count=count,
@@ -180,8 +182,6 @@ def dmAPI(request):
         if request.method == "POST":
             data_list = json.loads(request.body)
             for elem in data_list:
-                print(elem['dmId'])
-                print(elem['dmText'])
                 text = elem['dmText']
                 user_id = elem['dmId']
                 user.PostDirectMessage(text=text, user_id=user_id)
@@ -193,10 +193,45 @@ def dmAPI(request):
         return JsonResponse({'isSuccess': False, 'message': 'Exception '+str(e)})
 
 
+@csrf_exempt
+def save_template(request):
+    try:
+        if request.method == "POST":
+            data = json.loads(request.body)
+            tempName = data['tempName']
+            tempText = data['tempText']
+            obj = Template.objects.create(temp_name=tempName, text=tempText)
+            obj.save()
+            return JsonResponse({'isSuccess': True, 'message': 'Success'})
+        else:
+            return JsonResponse({'isSuccess': False, 'message': 'Use only http post verb'})
+    except BaseException as e:
+        return JsonResponse({'isSuccess': False, 'message': 'Exception ' + str(e)})
+
+
+@csrf_exempt
+def send_dm(request):
+    user = fetch_user()
+    try:
+        if request.method == "POST":
+            data = json.loads(request.body)
+            user_id = data['dmId']
+            text = data['dmText']
+            #user_id1 = '1150699863086174208'
+            #user_id2 = '1115073997320757249'
+            result = user.PostDirectMessage(text=text, user_id=user_id, return_json=True)
+            print(result)
+            return JsonResponse({'isSuccess': True, 'message': 'Success'})
+        else:
+            return JsonResponse({'isSuccess': False, 'message': 'Use only http post verb'})
+    except BaseException as e:
+        return JsonResponse({'isSuccess': False, 'message': 'Exception ' + str(e)})
+
+
 # def test_dm(request):
 #     user = fetch_user()
 #     text = 'test direct message twitter'
-#     user_id = '751125390933000192'
+#     user_id = '1150699863086174208'
 #     user.PostDirectMessage(text=text, user_id=user_id)
 #     return HttpResponse("<h1>SENT :D</h1>")
 

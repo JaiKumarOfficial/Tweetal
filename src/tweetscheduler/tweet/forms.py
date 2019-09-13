@@ -44,9 +44,12 @@ class DmUserListForm(forms.ModelForm):
 
 
 class TemplateForm(forms.ModelForm):
+    save_text = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+
     class Meta:
         model = Template
         fields = ('text', 'temp_name')
+
 
 # class TemplateResponse(forms.ModelForm):
 #     class Meta:

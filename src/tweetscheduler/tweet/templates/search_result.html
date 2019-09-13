@@ -7,6 +7,8 @@
         var dict = [];
         var idText = [];
         var obj = {};
+        var tempObj = {};
+
         $('.userChecked').click(function(){
             obj={
                     userId: $(this).data('userid'),
@@ -38,23 +40,22 @@
                     for(var i=0; i<dict.length; i++)
                     {
                         list += "<li><label>"+(i+1)+"</label>.<label>"+dict[i].userName+"</label><br>\
-                        <input type='text' id='dmText' class='dm-text' data-message='"+dict[i].userId+"'>\
+                        <input type='text' id='dmText"+i+"' class='dm-text' data-message='"+dict[i].userId+"'>\
                         <input type='file' data-upload='"+dict[i].userId+"' class='dm-upload'>\
-                        <br>Save Template: <input name='saveTemp' id='check' onclick='checkbox()' type='checkbox'>\
-                        <input type='hidden' name='isChecked' value='false' id='aaa'>\
-                        <br>Template Name: <input type='text' name='temp_name' maxlength='50' id='id_temp_name'>\
-                        <br><select onchange='selected()' id='dropdown' style='height: 20px; width: 97px;'>\
+                        <br>Save Template: <input class='check-isSave' name='saveTemp' id='check"+i+"' type='checkbox'>\
+                        <input type='hidden' name='isChecked' value='false' id='aaa"+i+"'>\
+                        <br>Template Name: <input type='text' name='temp_name' maxlength='50' id='temp_name"+i+"'>\
+                        <br><select class='temp-list' id='dropdown-"+i+"' style='height: 20px; width: 97px;'>\
                         <option value=''>Select Template</option>\
                         {% for elem in stored_form %}\
                         <option value='{{ elem.text }}'>{{ elem.temp_name }}</option>\
                         {% endfor %}\
-                        </select><br>\
+                        </select><br><br><button type'button' class='save-temp-btn' id='save-temp-btn-"+i+"'>Save</button>   \
+                        <button type'button' class='send-dm-btn' id='send-dm-btn-"+i+"'>Send</button>\
                         </li><br>";
-
                     }
                         list += "</ul>";
                     //list += "<button class='btn btn-info' >Direct Message</button>";
-                    //console.log(list);
                     $("#exampleModal").modal("show");
                     $('#dmPopup').html(list);
 
@@ -63,7 +64,6 @@
                 {
                     alert("NO USER SELECTED")
                 }
-
             };
 
             postData = function()
@@ -84,7 +84,6 @@
                 });
                 if(idText.length>0)
                 {
-                console.log(idText)
                    $.ajax({
                         type: 'POST',
                         url: '/dm_Api/',
@@ -92,7 +91,7 @@
                         contentType: 'application/json',
                         csrfmiddlewaretoken: "{{ csrf_token }}",
                         data:JSON.stringify(idText),
-                        success: function(){ alert("done"); },
+                        success: function(){ alert("Sent all"); },
                         error: function(error){ alert(error) },
                    });
                 }
@@ -114,18 +113,69 @@
              /*$('#testDm').click(function(){
                 location.href = "/test_dm/";
              });*/
-    });
-    function checkbox() {
-        var check = document.getElementById('check').checked;
-        document.getElementById('aaa').value = check;
-    }
 
-    function selected(){
-        var e = document.getElementById('dropdown');
-        var tempName = e.options[e.selectedIndex].value;
-        console.log(tempName)
-        document.getElementById('dmText').value=tempName
-    }
+             $(document).on('change', '.temp-list', function(){
+                 var id = $(this).attr('id')
+                 var val = id.split('-')
+                 var reqId = val[1]
+                 tempObj={
+                     tempText: $(this).val(),
+                     tempName: $(this).children("option").filter(":selected").text()
+                 };
+                 $('#dmText'+reqId+'').val(tempObj['tempText']);
+             });
+             $(document).on('click', '.save-temp-btn', function(){
+
+                 var id = $(this).attr('id')
+                 var val = id.split('-')
+                 var reqId = val[3]
+                 if($('#check'+reqId+'').is(':checked'))
+                 {
+                    var temp = {};
+                    temp={
+                        tempName: $('#temp_name'+reqId+'').val(),
+                        tempText: $('#dmText'+reqId+'').val()
+                    }
+                    $.ajax({
+                    type: 'POST',
+                    url: '/save-template/',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    data:JSON.stringify(temp),
+                    success: function(){ alert("Saved"); },
+                    error: function(error){ alert(error) },
+                    });
+                 }
+                 else{
+                 alert('Save Template not checked')
+                 }
+             });
+             $(document).on('click', '.send-dm-btn', function(){
+
+                 var id = $(this).attr('id')
+                 var val = id.split('-')
+                 var reqId = val[3]
+                 var dm = {};
+                 dm={
+                    dmId: $('#dmText'+reqId+'').data('message'),
+                    dmText: $('#dmText'+reqId+'').val()
+                 }
+                 console.log(dm)
+                 $.ajax({
+                 type: 'POST',
+                 url: '/send-dm/',
+                 dataType: 'json',
+                 contentType: 'application/json',
+                 csrfmiddlewaretoken: "{{ csrf_token }}",
+                 data:JSON.stringify(dm),
+                 success: function(){ alert("Sent"); },
+                 error: function(error){ alert(error) },
+                 });
+             });
+
+    });
+
 </script>
 
 <!--<script type="text/javascript">
@@ -194,7 +244,8 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" id="postDm" class="btn btn-primary">SEND</button>
+<!--        <button type="button" id="saveTemp" class="btn btn-primary">SAVE</button>-->
+        <button type="button" id="postDm" class="btn btn-primary">SEND ALL</button>
       </div>
     </div>
   </div>
