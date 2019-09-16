@@ -41,7 +41,7 @@
                     {
                         list += "<li><label>"+(i+1)+"</label>.<label>"+dict[i].userName+"</label><br>\
                         <input type='text' id='dmText"+i+"' class='dm-text' data-message='"+dict[i].userId+"'>\
-                        <input type='file' data-upload='"+dict[i].userId+"' class='dm-upload'>\
+                        <input type='file' id='file"+i+"' name='file"+i+"' data-upload='"+dict[i].userId+"' class='dm-upload'>\
                         <br>Save Template: <input class='check-isSave' name='saveTemp' id='check"+i+"' type='checkbox'>\
                         <input type='hidden' name='isChecked' value='false' id='aaa"+i+"'>\
                         <br>Template Name: <input type='text' name='temp_name' maxlength='50' id='temp_name"+i+"'>\
@@ -68,7 +68,39 @@
 
             postData = function()
             {
+                var form = new FormData()
+                var no = $('.dm-text').length
 
+                $('.dm-text').each(function(index){
+                    var text=$(this).val();
+                    var textId=$(this).data('message');
+                    var file = $('#file'+index+'').prop('files')[0]
+                    if(text!="")
+                    {
+                        form.append('dmId'+index+'', textId)
+                        form.append('dmText'+index+'', text)
+                        form.append('dmFile'+index+'', file)
+                    }
+                });
+                form.append('no', no)
+                $.ajax({
+                    type: 'POST',
+                    url: '/dm_Api/',
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    data: form,
+                    success: function(){ alert("Sent all"); },
+                    error: function(error){ alert(error) },
+                   });
+            }
+
+            /*
+            // when there is no media file and data is not sent in FormData
+
+            postData = function()
+            {
                 $('.dm-text').each(function(){
                     var text=$(this).val();
                     var textId=$(this).data('message');
@@ -80,8 +112,8 @@
                         })
                         console.log(idText);
                     }
-
                 });
+
                 if(idText.length>0)
                 {
                    $.ajax({
@@ -100,6 +132,7 @@
                     alert("error")
                 }
             }
+            */
 
              $("#userSubmit").click(function(){
                 DmLoop();
@@ -110,9 +143,9 @@
                 postData();
              });
 
-             /*$('#testDm').click(function(){
+             /* $('#testDm').click(function(){
                 location.href = "/test_dm/";
-             });*/
+             }); */
 
              $(document).on('change', '.temp-list', function(){
                  var id = $(this).attr('id')
@@ -152,17 +185,34 @@
                  }
              });
              $(document).on('click', '.send-dm-btn', function(){
-
+                 var formData = new FormData()
                  var id = $(this).attr('id')
                  var val = id.split('-')
                  var reqId = val[3]
                  var dm = {};
+                 var data = new FormData()
                  dm={
+                    dmFileData: $('#file'+reqId+'').prop('files')[0],
                     dmId: $('#dmText'+reqId+'').data('message'),
                     dmText: $('#dmText'+reqId+'').val()
                  }
-                 console.log(dm)
+                 data.append('file', $('#file'+reqId+'').prop('files')[0])
+                 data.append('dmID', $('#dmText'+reqId+'').data('message'))
+                 data.append('dmText', $('#dmText'+reqId+'').val())
+
                  $.ajax({
+                 type: 'POST',
+                 url: '/send-dm/',
+                 dataType: 'json',
+                 contentType: false,
+                 processData: false,
+                 csrfmiddlewaretoken: "{{ csrf_token }}",
+                 data: data,
+                 success: function(){ alert("Sent"); },
+                 error: function(error){ alert(error) },
+                 });
+
+/*                 $.ajax({
                  type: 'POST',
                  url: '/send-dm/',
                  dataType: 'json',
@@ -172,6 +222,7 @@
                  success: function(){ alert("Sent"); },
                  error: function(error){ alert(error) },
                  });
+*/
              });
 
     });

@@ -2,10 +2,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Users, Template, DmUserList, Tweet
 from .forms import UserLoginForm, PostTweet, Search, DmForm, TemplateForm, DmUserListForm
 from django.http import HttpResponse, HttpResponseRedirect
-import twitter, datetime, json, tweepy
+import twitter, datetime, json
 from django.http import JsonResponse
 from django.forms import formset_factory
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
 
 from rest_framework.parsers import JSONParser
 from rest_framework import viewsets
@@ -180,13 +183,24 @@ def dmAPI(request):
     user = fetch_user()
     try:
         if request.method == "POST":
+            '''
+            # when data is not sent in FormData and has no media File
+            
             data_list = json.loads(request.body)
             for elem in data_list:
-                text = elem['dmText']
                 user_id = elem['dmId']
+                text = elem['dmText']
                 user.PostDirectMessage(text=text, user_id=user_id)
-
+            '''
+            no = int(request.POST.get('no'))
+            for x in range(0, no):
+                text = request.POST.get('dmText'+str(x)+'')
+                user_id = request.POST.get('dmId' + str(x) + '')
+                file = request.FILES['dmFile' + str(x) + '']
+                print(text, user_id, file)
+                user.PostDirectMessage(text=text, user_id=user_id)
             return JsonResponse({'isSuccess': True, 'message': 'Success'})
+
         else:
             return JsonResponse({'isSuccess': False, 'message': 'Use only http post verb'})
     except BaseException as e:
@@ -214,11 +228,13 @@ def send_dm(request):
     user = fetch_user()
     try:
         if request.method == "POST":
-            data = json.loads(request.body)
-            user_id = data['dmId']
-            text = data['dmText']
-            #user_id1 = '1150699863086174208'
-            #user_id2 = '1115073997320757249'
+            file = request.FILES['file']
+            user_id = request.POST.get('dmID')
+            text = request.POST.get('dmText')
+            fileName = str(file)
+            FileSystemStorage().save(fileName, file)
+            file_url = settings.MEDIA_ROOT + "\\" + fileName
+
             result = user.PostDirectMessage(text=text, user_id=user_id, return_json=True)
             print(result)
             return JsonResponse({'isSuccess': True, 'message': 'Success'})
@@ -232,6 +248,7 @@ def send_dm(request):
 #     user = fetch_user()
 #     text = 'test direct message twitter'
 #     user_id = '1150699863086174208'
+#     user_id2 = '1115073997320757249'
 #     user.PostDirectMessage(text=text, user_id=user_id)
 #     return HttpResponse("<h1>SENT :D</h1>")
 
@@ -244,14 +261,10 @@ def send_dm(request):
 #     else:
 #         return JsonResponse({'success': False}, status=400)
 
-
-
-
 # class DmUserListView(viewsets.ModelViewSet):
 #     queryset = DmUserList.objects.all()
 #     serializer_class = DmUserListSerializer
 #
-
 
 @csrf_exempt
 def dm_list(request):
