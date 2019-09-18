@@ -16,9 +16,9 @@ class PostTweet(forms.ModelForm):
     class Meta:
         model = Tweet
         fields = ('tweet', 'document')
-        # widgets = {
-        #     'schedule': forms.DateTimeInput(attrs={'type': 'datetime'}),
-        # }
+        widgets = {
+            'tweet': forms.Textarea(attrs={'placeholder': 'Tweet Me !!'}),
+        }
 
 
 class Search(forms.Form):

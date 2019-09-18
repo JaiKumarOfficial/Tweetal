@@ -1,7 +1,12 @@
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
 
 # Create your models here.
+
+
+def upload_location(instance, filename):
+    return "%s/%s" % (instance.user, filename)
 
 
 class Users(models.Model):
@@ -20,10 +25,17 @@ class Users(models.Model):
 
 
 class Tweet(models.Model):
-    tweet = models.TextField(max_length=200, default="tweet me !!")
-    document = models.FileField(upload_to='documents/', null=True, blank=True)
+    user = models.IntegerField(null=True)
+    tweet = models.TextField(max_length=200, null=True, blank=True)
+    document = models.FileField(upload_to=upload_location, null=True, blank=True)
     created_date = models.DateTimeField(default=timezone.now)
     # schedule = models.DateTimeField(auto_now=True, blank=True)
+
+    def __str__(self):
+        return self.tweet
+
+    def get_absolute_url(self):
+        return reverse('tweet-detail', kwargs={'pk': self.pk})
 
 
 class DmUserList(models.Model):

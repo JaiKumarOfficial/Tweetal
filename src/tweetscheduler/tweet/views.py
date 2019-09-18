@@ -26,7 +26,6 @@ def user_login(request):
 
         form = UserLoginForm(request.POST)
         if form.is_valid():
-            print("working")
             person = form.save(commit=False)
             person.user = form.cleaned_data['name']
             person.con_key = form.cleaned_data['consumer_key']
@@ -46,7 +45,6 @@ def user_login(request):
                 return render(request, 'login_error.html', {})
 
     else:
-        print("else working")
         form = UserLoginForm()
         return render(request, 'user_login_input.html', {'user_login_input': form})
 
@@ -85,31 +83,53 @@ def user_delete(request, pk):
 
 def fetch_user():
     get_user = Users.objects.all()[0]
+    user_id = get_user.id
     twitter_api = twitter.Api(consumer_key=get_user.consumer_key,
                              consumer_secret=get_user.consumer_secret_key,
                              access_token_key=get_user.access_token,
                              access_token_secret=get_user.access_secret_token,
                              tweet_mode='extended')
-    return twitter_api
+    return twitter_api, user_id
 
 
 def tweet(request):
-    if request.method == "POST":
-        user_tweet = fetch_user()
-        form = PostTweet(request.POST, request.FILES)
-        # person = get_object_or_404(Users, pk=pk)
-        if form.is_valid():
-            print("tweet valid")
-            tweet_text = form.cleaned_data['tweet']
-            user_tweet.PostUpdate(tweet_text)
-            return render(request, 'tweet_posted.html', {})
+    try:
+        if request.method == "POST":
+            user, user_id = fetch_user()
+            form = PostTweet(request.POST, request.FILES)
+            # person = get_object_or_404(Users, pk=pk)
+            if form.is_valid():
+                tweet_table = form.save(commit=False)
+                tweet_text = form.cleaned_data['tweet']
+                document = form.cleaned_data['document']
+                tweet_table.user = user_id
+                tweet_table.save()
+                if (document == '' or document is None) and (tweet_text == '' or tweet_text is None):
+                    return JsonResponse({'isSuccess': False, 'message': 'No input'})
+                elif document == '' or document is None:
+                    user.PostUpdate(tweet_text)
+                elif tweet_text == '' or tweet_text is None:
+                    obj = Tweet.objects.filter(user=user_id).order_by('-created_date')[0]
+                    file_name = obj.document
+                    file_url = settings.MEDIA_ROOT + "\\" + str(file_name)
+                    user.PostUpdate("", file_url)
+                else:
+                    obj = Tweet.objects.filter(user=user_id).order_by('-created_date')[0]
+                    file_name = obj.document
+                    file_url = settings.MEDIA_ROOT + "\\" + str(file_name)
+                    user.PostUpdate(tweet_text, file_url)
+                return JsonResponse({'isSuccess': True, 'message': 'Success'})
+                # return render(request, 'tweet_posted.html', {})
+            else:
+                return JsonResponse({'isSuccess': False, 'message': 'form not valid'})
+        elif len(Users.objects.all()) <= 0:
+            return redirect('no_user_found')
 
-    elif len(Users.objects.all()) <= 0:
-        return redirect('no_user_found')
-
-    else:
-        form = PostTweet()
-        return render(request, 'post_tweet.html', {'post_tweet': form})
+        else:
+            form = PostTweet()
+            return render(request, 'post_tweet.html', {'post_tweet': form})
+    except BaseException as e:
+        return JsonResponse({'isSuccess': False, 'message': 'Exception ' + str(e)})
 
 
 def tweet_search_form(request):
@@ -244,6 +264,23 @@ def send_dm(request):
         return JsonResponse({'isSuccess': False, 'message': 'Exception ' + str(e)})
 
 
+@csrf_exempt
+def dm_list(request):
+    print("in function")
+    u = request.POST.getlist('key1[]')
+    n = request.POST.getlist('key2[]')
+    user_len = len(u)
+    form = DmForm()
+    if request.method == 'POST':
+        print("in IF")
+        print(n)
+        print(u)
+
+        return HttpResponse("<h2>POSTED</h2>")
+    else:
+        return render(request, 'dm_list.html', {'dm_form': form, 'n': n, 'len': user_len})
+
+
 # def test_dm(request):
 #     user = fetch_user()
 #     text = 'test direct message twitter'
@@ -266,18 +303,3 @@ def send_dm(request):
 #     serializer_class = DmUserListSerializer
 #
 
-@csrf_exempt
-def dm_list(request):
-    print("in function")
-    u = request.POST.getlist('key1[]')
-    n = request.POST.getlist('key2[]')
-    user_len = len(u)
-    form = DmForm()
-    if request.method == 'POST':
-        print("in IF")
-        print(n)
-        print(u)
-
-        return HttpResponse("<h2>POSTED</h2>")
-    else:
-        return render(request, 'dm_list.html', {'dm_form': form, 'n': n, 'len': user_len})
