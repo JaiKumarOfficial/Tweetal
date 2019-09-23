@@ -4,7 +4,7 @@ Functions:
 2. Search users 
 3. Tweet 
 5. Send Direct message to selected users from search results
-6. Tweet scheduling (yet to implement)
+6. Tweet scheduling 
 
 
 ** THANK YOU **
