@@ -18,6 +18,7 @@ urlpatterns = [
     path('users/', views.user_list, name='user_list'),
     path('login_details/<int:pk>/delete', views.user_delete, name='user_delete'),
     path('new_tweet/', views.tweet, name='tweet_posted'),
+    path('scheduled_tweet/', views.scheduled_tweet),
     path('search/', views.tweet_search_form, name='tweet_search_form'),
     path('search_results/', views.search_results, name='search_results'),
     path('dm_user/<int:user_id>', views.dm),

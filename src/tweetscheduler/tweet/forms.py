@@ -1,5 +1,5 @@
 from django import forms
-from .models import Users, Tweet, DmUserList
+from .models import Users, Tweet, DmUserList, ScheduledTweet
 from .models import Template
 from django.utils import timezone
 
@@ -15,9 +15,21 @@ class PostTweet(forms.ModelForm):
 
     class Meta:
         model = Tweet
-        fields = ('tweet', 'document')
+        fields = ('tweet', 'document', 'schedule_post')
         widgets = {
             'tweet': forms.Textarea(attrs={'placeholder': 'Tweet Me !!'}),
+            'schedule': forms.DateTimeInput(attrs={'type': 'datetime'}),
+        }
+
+
+class ScheduledTweetForm(forms.ModelForm):
+
+    class Meta:
+        model = ScheduledTweet
+        fields = ('tweet', 'document', 'schedule_post')
+        widgets = {
+            'tweet': forms.Textarea(attrs={'placeholder': 'Tweet Me !!'}),
+            'schedule': forms.DateTimeInput(attrs={'type': 'datetime'}),
         }
 
 

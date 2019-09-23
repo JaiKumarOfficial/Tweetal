@@ -2,7 +2,7 @@
 
 {% block script %}
 <script>
-    /*
+/*
     $(document).ready(function(){
         $("#sub").click(function(){
         $("#tweet").submit(function(e) {
@@ -32,16 +32,66 @@
         });
         });
     });
-    */
+*/
 </script>
+<script>
+    $(document).ready(function(){
+
+        $('#scheduleBox').hide()
+        $('#schedule').on('click', function(){
+            if($(this).is(':checked'))
+            {
+                $('#scheduleBox').show()
+            }
+            else
+            {
+                $('#scheduleBox').hide()
+            }
+        });
+        $('#sub').click(function(){
+
+            var isCheck = $('#schedule').is(':checked')
+            if(isCheck)
+            {
+                var schedule = $('#id_schedule_post').val()
+                if(schedule!="")
+                {   console.log("s")
+                    $('#tweet').attr('action', '/scheduled_tweet/');
+                }
+                else
+                {
+                    alert("Schedule Time empty")
+                    $('#tweet').submit(function(e){ e.preventDefault(); });
+                }
+            }
+            else
+            {
+                $('#tweet').attr('action', '/new_tweet/');
+            }
+        });
+    });
+</script>
+
 {% endblock %}
 
 {% block content %}
 <div style="margin: 15px">
         <h2>NEW TWEET</h2>
-        <form id="tweet" method="POST" enctype="multipart/form-data">
+        <form id="tweet" action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{post_tweet.as_p}}
+            <b><label for="id_tweet">Tweet :</label></b>
+            {{post_tweet.tweet}}
+            <br>
+            <b><label for="id_document">Document :</label></b>
+            {{post_tweet.document}}<br>
+            <label for="schedule">Schedule Tweet </label>
+            <input type="checkbox" id="schedule" name="schedule"><br>
+            <div id="scheduleBox">
+                The current time is {% now "jS F Y H:i" %} (UTC)<br>
+                <b>Schedule Time - </b> {{post_tweet.schedule_post}}<br>
+                The format of the schedule time is <b>YYYY-MM-DD HH:MM:SS</b><br>
+                (24 Hour clock, timezone is UTC)<br>
+            </div><br>
             <button id="sub" class="btn btn-primary" type="submit">TWEET</button>
         </form>
 </div>

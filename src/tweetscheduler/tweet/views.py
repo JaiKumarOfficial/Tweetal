@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Users, Template, DmUserList, Tweet
-from .forms import UserLoginForm, PostTweet, Search, DmForm, TemplateForm, DmUserListForm
+from .forms import UserLoginForm, PostTweet, Search, DmForm, TemplateForm, DmUserListForm, ScheduledTweetForm
 from django.http import HttpResponse, HttpResponseRedirect
 import twitter, datetime, json
 from django.http import JsonResponse
@@ -8,6 +8,7 @@ from django.forms import formset_factory
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+
 
 
 from rest_framework.parsers import JSONParser
@@ -81,21 +82,28 @@ def user_delete(request, pk):
     return redirect('user_list')
 
 
-def fetch_user():
+def fetch_user_id():
     get_user = Users.objects.all()[0]
     user_id = get_user.id
+    return user_id
+
+
+def fetch_user():
+    get_user = Users.objects.all()[0]
     twitter_api = twitter.Api(consumer_key=get_user.consumer_key,
                              consumer_secret=get_user.consumer_secret_key,
                              access_token_key=get_user.access_token,
                              access_token_secret=get_user.access_secret_token,
                              tweet_mode='extended')
-    return twitter_api, user_id
+    return twitter_api
 
 
 def tweet(request):
     try:
         if request.method == "POST":
-            user, user_id = fetch_user()
+            print("t")
+            user = fetch_user()
+            user_id = fetch_user_id()
             form = PostTweet(request.POST, request.FILES)
             # person = get_object_or_404(Users, pk=pk)
             if form.is_valid():
@@ -128,6 +136,34 @@ def tweet(request):
         else:
             form = PostTweet()
             return render(request, 'post_tweet.html', {'post_tweet': form})
+    except BaseException as e:
+        return JsonResponse({'isSuccess': False, 'message': 'Exception ' + str(e)})
+
+
+def scheduled_tweet(request):
+    try:
+        if request.method == "POST":
+            print("in st")
+            user = fetch_user()
+            user_id = fetch_user_id()
+            form = ScheduledTweetForm(request.POST, request.FILES)
+            if form.is_valid():
+                tweet_table = form.save(commit=False)
+                tweet_text = form.cleaned_data['tweet']
+                document = form.cleaned_data['document']
+                schedule = form.cleaned_data['schedule_post']
+                tweet_table.user = user_id
+                tweet_table.save()
+
+                if (document == '' or document is None) and (tweet_text == '' or tweet_text is None):
+                    return JsonResponse({'isSuccess': False, 'message': 'No input'})
+
+                elif schedule == '' or schedule is None:
+                    return JsonResponse({'isSuccess': False, 'message': 'No schedule input'})
+
+                return JsonResponse({'isSuccess': True, 'message': 'Success'})
+            else:
+                return JsonResponse({'isSuccess': False, 'message': 'form not valid'})
     except BaseException as e:
         return JsonResponse({'isSuccess': False, 'message': 'Exception ' + str(e)})
 

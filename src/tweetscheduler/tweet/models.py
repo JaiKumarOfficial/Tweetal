@@ -26,16 +26,26 @@ class Users(models.Model):
 
 class Tweet(models.Model):
     user = models.IntegerField(null=True)
-    tweet = models.TextField(max_length=200, null=True, blank=True)
-    document = models.FileField(upload_to=upload_location, null=True, blank=True)
+    tweet = models.TextField(max_length=200, null=True, blank=True, default=None)
+    document = models.FileField(upload_to=upload_location, null=True, blank=True, default=None)
     created_date = models.DateTimeField(default=timezone.now)
-    # schedule = models.DateTimeField(auto_now=True, blank=True)
+    schedule_post = models.DateTimeField(blank=True, null=True)
+    is_posted = models.BooleanField(default=True)
 
     def __str__(self):
         return self.tweet
 
     def get_absolute_url(self):
         return reverse('tweet-detail', kwargs={'pk': self.pk})
+
+
+class ScheduledTweet(models.Model):
+    user = models.IntegerField(null=True)
+    tweet = models.TextField(max_length=200, null=True, blank=True, default=None)
+    document = models.FileField(upload_to=upload_location, null=True, blank=True, default=None)
+    created_date = models.DateTimeField(default=timezone.now)
+    schedule_post = models.DateTimeField(blank=True, null=True)
+    is_posted = models.BooleanField(default=False)
 
 
 class DmUserList(models.Model):
