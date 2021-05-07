@@ -1,4 +1,4 @@
-This is a Analytical tool which uses Twitter API to perform certain Analysis on twitter users which can be further used for marketing.
+This is an Analytical tool which uses Twitter API to perform certain Analysis on twitter users which can be further used for marketing.
 Functions:
 1. Login(need twitter Developer account)
 2. Search users 
